@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#86ccff" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="身の空模様" />
+    <meta
+      name="description"
+      content="その日の心身の空気を、できるだけ軽く置いておくための個人用PWAです。"
+    />
+    <title>身の空模様</title>
+    <link rel="manifest" href="./manifest.webmanifest?v=2026.04.12-1" />
+    <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="./icons/favicon-16.png" />
+    <link rel="icon" type="image/svg+xml" href="./icons/icon.svg" />
+    <link rel="stylesheet" href="./styles.css?v=2026.04.12-1" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="app-header">
+        <div class="brand-block">
+          <p class="eyebrow">その日の空気を軽く置く</p>
+          <h1 class="app-title">身の空模様</h1>
+        </div>
+        <div class="header-actions">
+          <button
+            id="refreshButton"
+            class="icon-button"
+            type="button"
+            aria-label="最新版を読み込む"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M18.2 8.4a7 7 0 1 0 1.1 6.8"
+                fill="none"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.8"
+              />
+              <path
+                d="M18.4 4.7v4.7h-4.7"
+                fill="none"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.8"
+              />
+              <circle cx="18.6" cy="17.5" r="1.1" fill="currentColor" />
+            </svg>
+          </button>
+          <button
+            id="settingsButton"
+            class="icon-button"
+            type="button"
+            aria-label="バックアップと設定"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M12 3.8 13.5 5l2-.3.8 1.8 1.9.7-.1 2 1.3 1.5-1.3 1.5.1 2-1.9.7-.8 1.8-2-.3L12 18.2l-1.5 1.2-2-.3-.8-1.8-1.9-.7.1-2L4.6 13l1.3-1.5-.1-2 1.9-.7.8-1.8 2 .3L12 3.8Z"
+                fill="none"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.5"
+              />
+              <circle
+                cx="12"
+                cy="11.5"
+                r="2.5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+              />
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <main class="app-main">
+        <section id="todayPanel" class="panel panel-feature" aria-live="polite"></section>
+        <section id="recentPanel" class="panel"></section>
+        <section id="monthPanel" class="panel"></section>
+        <section id="yearPanel" class="panel"></section>
+      </main>
+    </div>
+
+    <div id="recordSheet" class="sheet-backdrop hidden" aria-hidden="true">
+      <section
+        class="sheet"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="recordSheetTitle"
+      >
+        <div class="sheet-handle" aria-hidden="true"></div>
+        <header class="sheet-header">
+          <div>
+            <p id="recordSheetEyebrow" class="sheet-eyebrow">今日の記録</p>
+            <h2 id="recordSheetTitle">今日の空模様</h2>
+          </div>
+          <button
+            id="recordSheetClose"
+            class="icon-button icon-button-subtle"
+            type="button"
+            aria-label="閉じる"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M7 7 17 17M17 7 7 17"
+                fill="none"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-width="1.8"
+              />
+            </svg>
+          </button>
+        </header>
+
+        <div class="sheet-body">
+          <div id="quickFlow" class="quick-flow">
+            <div id="stepIndicator" class="step-indicator"></div>
+
+            <section id="stepStatePanel" class="flow-step">
+              <p class="section-caption">ステップ1</p>
+              <h3 class="flow-title">今日の状態をひとつ選ぶ</h3>
+              <p class="flow-copy">最初は気分を細かく言葉にしなくて大丈夫です。</p>
+              <div id="stateButtonGrid" class="state-grid"></div>
+            </section>
+
+            <section id="stepFatiguePanel" class="flow-step hidden">
+              <p class="section-caption">ステップ2</p>
+              <h3 class="flow-title">疲れ度を選ぶ</h3>
+              <p id="selectedStateCaption" class="flow-copy"></p>
+              <div id="fatigueButtonGrid" class="fatigue-grid"></div>
+              <button
+                id="backToStateButton"
+                class="text-button"
+                type="button"
+              >
+                状態を選びなおす
+              </button>
+            </section>
+
+            <section id="stepSavedPanel" class="flow-step hidden">
+              <p class="section-caption">保存完了</p>
+              <h3 class="flow-title">今日の基本記録を保存しました</h3>
+              <div id="savedSummary" class="saved-summary"></div>
+              <div class="sheet-actions">
+                <button id="addMemoButton" class="primary-button" type="button">
+                  体調メモを追加する
+                </button>
+                <button id="closeQuickFlowButton" class="secondary-button" type="button">
+                  閉じる
+                </button>
+              </div>
+            </section>
+          </div>
+
+          <form id="detailForm" class="detail-form hidden" novalidate>
+            <div class="detail-header">
+              <div>
+                <p class="section-caption">編集</p>
+                <h3 id="detailFormTitle" class="flow-title">記録を整える</h3>
+              </div>
+              <p id="detailDateText" class="detail-date"></p>
+            </div>
+
+            <section class="detail-section">
+              <p class="field-label">状態</p>
+              <div id="detailStateChoices" class="choice-row choice-row-3"></div>
+              <input id="detailStateInput" name="state" type="hidden" />
+            </section>
+
+            <section class="detail-section">
+              <p class="field-label">疲れ度</p>
+              <div id="detailFatigueChoices" class="choice-row choice-row-5"></div>
+              <input id="detailFatigueInput" name="fatigue" type="hidden" />
+            </section>
+
+            <label class="field-block">
+              <span class="field-label">自由記述メモ</span>
+              <textarea
+                id="memoInput"
+                name="memo"
+                rows="4"
+                placeholder="体調のこと、その日の空気、ひとことだけでも。"
+              ></textarea>
+            </label>
+
+            <section class="detail-section">
+              <p class="field-label">痛み</p>
+              <div id="painToggleChoices" class="choice-row choice-row-2"></div>
+              <input id="detailPainHasInput" name="painHas" type="hidden" />
+            </section>
+
+            <div id="painFields" class="detail-group hidden">
+              <label class="field-block">
+                <span class="field-label">痛みの部位</span>
+                <input
+                  id="painPartInput"
+                  name="painPart"
+                  type="text"
+                  inputmode="text"
+                  placeholder="例: 首、肩、こめかみ"
+                />
+              </label>
+
+              <label class="field-block">
+                <span class="field-label">痛みの強さ</span>
+                <div class="range-row">
+                  <input
+                    id="painLevelInput"
+                    name="painLevel"
+                    type="range"
+                    min="0"
+                    max="10"
+                    step="1"
+                    value="5"
+                  />
+                  <output id="painLevelOutput" for="painLevelInput">5</output>
+                </div>
+              </label>
+            </div>
+
+            <label class="field-block">
+              <span class="field-label">きっかけ</span>
+              <input
+                id="triggerInput"
+                name="trigger"
+                type="text"
+                inputmode="text"
+                placeholder="思い当たることがあれば"
+              />
+            </label>
+
+            <label class="field-block">
+              <span class="field-label">楽になったこと</span>
+              <input
+                id="reliefInput"
+                name="relief"
+                type="text"
+                inputmode="text"
+                placeholder="休憩、食事、温める など"
+              />
+            </label>
+
+            <div class="sheet-actions">
+              <button class="primary-button" type="submit">保存する</button>
+              <button id="cancelDetailButton" class="secondary-button" type="button">
+                閉じる
+              </button>
+            </div>
+          </form>
+        </div>
+      </section>
+    </div>
+
+    <div id="settingsSheet" class="sheet-backdrop hidden" aria-hidden="true">
+      <section
+        class="sheet settings-sheet"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="settingsTitle"
+      >
+        <div class="sheet-handle" aria-hidden="true"></div>
+        <header class="sheet-header">
+          <div>
+            <p class="sheet-eyebrow">設定</p>
+            <h2 id="settingsTitle">バックアップ</h2>
+          </div>
+          <button
+            id="settingsClose"
+            class="icon-button icon-button-subtle"
+            type="button"
+            aria-label="閉じる"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M7 7 17 17M17 7 7 17"
+                fill="none"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-width="1.8"
+              />
+            </svg>
+          </button>
+        </header>
+
+        <div class="sheet-body">
+          <section class="settings-card">
+            <p class="section-caption">バックアップ文字列を作成</p>
+            <h3 class="flow-title">今の記録をコピペできる形にする</h3>
+            <p class="flow-copy">入力データを1つの文字列にまとめます。</p>
+            <div class="sheet-actions settings-actions">
+              <button id="createBackupButton" class="primary-button" type="button">
+                文字列を作成
+              </button>
+              <button id="copyBackupButton" class="secondary-button" type="button">
+                コピー
+              </button>
+            </div>
+            <label class="field-block">
+              <span class="field-label">バックアップ文字列</span>
+              <textarea
+                id="backupOutput"
+                rows="6"
+                readonly
+                placeholder="ここにバックアップ文字列が表示されます。"
+              ></textarea>
+            </label>
+          </section>
+
+          <section class="settings-card">
+            <p class="section-caption">復元</p>
+            <h3 class="flow-title">保存してある文字列から戻す</h3>
+            <p class="flow-copy">
+              壊れた文字列や別形式の文字列は安全に弾きます。
+            </p>
+            <label class="field-block">
+              <span class="field-label">復元する文字列</span>
+              <textarea
+                id="restoreInput"
+                rows="6"
+                placeholder="バックアップ文字列を貼り付けてください。"
+              ></textarea>
+            </label>
+            <button id="restoreButton" class="primary-button" type="button">
+              復元する
+            </button>
+            <p id="restoreFeedback" class="inline-feedback" aria-live="polite"></p>
+          </section>
+        </div>
+      </section>
+    </div>
+
+    <div id="toast" class="toast hidden" aria-live="polite"></div>
+
+    <script src="./app.js?v=2026.04.12-1"></script>
+  </body>
+</html>

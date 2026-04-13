@@ -1,0 +1,23 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="sky" x1="256" y1="24" x2="256" y2="488" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#E8F8FF" />
+      <stop offset="0.45" stop-color="#A8DEFF" />
+      <stop offset="1" stop-color="#73C5FF" />
+    </linearGradient>
+    <linearGradient id="cloud" x1="150" y1="120" x2="368" y2="356" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF" />
+      <stop offset="1" stop-color="#DCE4EA" />
+    </linearGradient>
+    <filter id="shadow" x="78" y="122" width="356" height="254" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#4E88AE" flood-opacity="0.18" />
+    </filter>
+  </defs>
+  <rect width="512" height="512" rx="128" fill="url(#sky)" />
+  <circle cx="124" cy="118" r="58" fill="white" fill-opacity="0.26" />
+  <circle cx="410" cy="132" r="40" fill="white" fill-opacity="0.18" />
+  <g filter="url(#shadow)">
+    <path d="M176 342C127.399 342 88 305.943 88 261.466C88 220.339 121.727 186.415 164.819 181.516C178.972 137.989 220.717 106 269.694 106C328.129 106 375.391 151.612 375.391 208.035C375.391 210.627 375.291 213.195 375.094 215.734C409.922 220.635 436 249.349 436 283.727C436 321.429 404.953 352 366.662 352H176V342Z" fill="url(#cloud)" />
+  </g>
+  <path d="M176 342C127.399 342 88 305.943 88 261.466C88 220.339 121.727 186.415 164.819 181.516C178.972 137.989 220.717 106 269.694 106C328.129 106 375.391 151.612 375.391 208.035C375.391 210.627 375.291 213.195 375.094 215.734C409.922 220.635 436 249.349 436 283.727C436 321.429 404.953 352 366.662 352H176V342Z" stroke="white" stroke-opacity="0.35" stroke-width="10" />
+</svg>
