@@ -429,13 +429,13 @@ button:focus-visible {
 }
 
 .fatigue-badge[data-fatigue="1"] {
-  background: #ffeaf1;
-  color: #a65c78;
+  background: #e8f8ee;
+  color: #3d8a61;
 }
 
 .fatigue-badge[data-fatigue="2"] {
-  background: #fff1e7;
-  color: #9a6c63;
+  background: #f2f8e9;
+  color: #6d8648;
 }
 
 .fatigue-badge[data-fatigue="3"] {
@@ -444,13 +444,13 @@ button:focus-visible {
 }
 
 .fatigue-badge[data-fatigue="4"] {
-  background: #f3f0e7;
-  color: #6f6d78;
+  background: #fff0e5;
+  color: #9a6b4e;
 }
 
 .fatigue-badge[data-fatigue="5"] {
-  background: #e9e5ee;
-  color: #635f73;
+  background: #ffe5e5;
+  color: #a65a5a;
 }
 
 .date-picker-pill {
