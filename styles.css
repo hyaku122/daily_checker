@@ -310,6 +310,10 @@ button:focus-visible {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.state-count-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .metric-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
@@ -321,6 +325,12 @@ button:focus-visible {
   border-radius: var(--radius-md);
   background: var(--panel-strong);
   border: 1px solid rgba(118, 170, 199, 0.18);
+}
+
+.metric-button {
+  display: block;
+  width: 100%;
+  text-align: left;
 }
 
 .metric-label {
@@ -345,6 +355,7 @@ button:focus-visible {
 
 .state-badge,
 .mini-badge,
+.fatigue-badge,
 .info-pill {
   display: inline-flex;
   align-items: center;
@@ -376,6 +387,31 @@ button:focus-visible {
 .info-pill {
   background: rgba(236, 245, 255, 0.94);
   color: var(--text-soft);
+}
+
+.fatigue-badge[data-fatigue="1"] {
+  background: #fff0de;
+  color: #9a6530;
+}
+
+.fatigue-badge[data-fatigue="2"] {
+  background: #fff4e6;
+  color: #936f3b;
+}
+
+.fatigue-badge[data-fatigue="3"] {
+  background: #fff8dd;
+  color: #7f7540;
+}
+
+.fatigue-badge[data-fatigue="4"] {
+  background: #f3f0e7;
+  color: #6f6d78;
+}
+
+.fatigue-badge[data-fatigue="5"] {
+  background: #e9e5ee;
+  color: #635f73;
 }
 
 .date-picker-pill {
@@ -464,6 +500,18 @@ button:focus-visible {
   border: 1px solid rgba(123, 169, 193, 0.16);
 }
 
+.record-row[data-state="澄"] {
+  background: rgba(121, 197, 255, 0.08);
+}
+
+.record-row[data-state="回復"] {
+  background: rgba(135, 213, 182, 0.09);
+}
+
+.record-row[data-state="濁"] {
+  background: rgba(161, 173, 199, 0.1);
+}
+
 .record-head,
 .trend-head,
 .list-header,
@@ -472,6 +520,14 @@ button:focus-visible {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+}
+
+.record-row .record-head {
+  justify-content: flex-start;
+}
+
+.record-row .record-head .fatigue-badge {
+  margin-left: auto;
 }
 
 .record-date,
@@ -878,6 +934,11 @@ output {
   .month-stats,
   .choice-row-5 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .state-count-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
   }
 
   .choice-row-5 .choice-card:last-child {

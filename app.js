@@ -1,7 +1,7 @@
 "use strict";
 
 (function () {
-  var APP_VERSION = "2026.05.03-1";
+  var APP_VERSION = "2026.05.03-2";
   var CACHE_PREFIX = "mino-kumoyou-static-";
   var BACKUP_PREFIX = "mino-kumoyou-backup-v1:";
   var STORAGE_KEYS = {
@@ -167,6 +167,12 @@
       changeSelectedYear(Number(button.getAttribute("data-change-year")));
       return;
     }
+    if (button.hasAttribute("data-year-jump")) {
+      appState.preferences.selectedYear = getCurrentYear();
+      persistPreferences();
+      openYearView(button.getAttribute("data-year-jump"));
+      return;
+    }
     if (button.hasAttribute("data-quick-state")) {
       selectQuickState(button.getAttribute("data-quick-state"));
       return;
@@ -227,10 +233,19 @@
     dom.yearViewButton.textContent = appState.preferences.selectedYear + "年を見返す";
   }
 
-  function openYearView() {
+  function openYearView(targetId) {
     appState.activeView = "year";
     renderApp();
-    window.scrollTo(0, 0);
+    if (targetId) {
+      window.setTimeout(function () {
+        var target = document.getElementById(targetId);
+        if (target) {
+          target.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }, 40);
+    } else {
+      window.scrollTo(0, 0);
+    }
   }
 
   function closeYearView() {
@@ -276,7 +291,6 @@
         html += '<span class="info-pill">体調メモあり</span>';
       }
       html += "</div>";
-      html += '<p class="summary-copy">' + escapeHtml(buildTodaySummary(todayRecord)) + "</p>";
       if (todayRecord.memo) {
         html += '<p class="inline-note">' + escapeHtml(truncateText(todayRecord.memo, 68)) + "</p>";
       } else if (todayRecord.painHas) {
@@ -319,21 +333,24 @@
 
     html += '<div class="recent-list">';
     records.forEach(function (record) {
-      html += '<button class="record-row" type="button" data-open-edit="' + escapeAttribute(record.date) + '">';
+      html += '<button class="record-row" data-state="' + escapeAttribute(record.state) + '" type="button" data-open-edit="' + escapeAttribute(record.date) + '">';
       html += '<div class="record-head">';
       html += '<span class="record-date">' + escapeHtml(formatDateLabel(record.date, false)) + "</span>";
       html += createStateBadge(record.state);
+      html += createFatigueBadge(record.fatigue);
       html += "</div>";
-      html += '<div class="record-meta">';
-      html += '<span class="mini-badge" data-state="' + escapeAttribute(record.state) + '">疲れ度 ' + record.fatigue + "</span>";
       if (record.memo) {
+        html += '<div class="record-meta">';
         html += '<span class="info-pill">メモ</span>';
-      }
-      if (record.painHas) {
+        if (record.painHas) {
+          html += '<span class="info-pill">痛み</span>';
+        }
+        html += "</div>";
+      } else if (record.painHas) {
+        html += '<div class="record-meta">';
         html += '<span class="info-pill">痛み</span>';
+        html += "</div>";
       }
-      html += "</div>";
-      html += '<p class="helper-text">' + escapeHtml(buildListSummary(record)) + "</p>";
       html += "</button>";
     });
     html += "</div>";
@@ -351,7 +368,7 @@
     html += "</div>";
     html += '<div class="month-summary-grid">';
     html += renderStackedBar(summary.counts, summary.total);
-    html += '<div class="summary-grid">';
+    html += '<div class="summary-grid state-count-grid">';
     STATE_OPTIONS.forEach(function (option) {
       html += '<div class="snapshot-card">';
       html += '<span class="metric-label">' + escapeHtml(option.value) + "</span>";
@@ -362,9 +379,8 @@
     html += "</div>";
     html += '<div class="month-stats">';
     html += createMetricCard("平均疲れ度", summary.total ? formatAverage(summary.averageFatigue) : "—", summary.total ? "1〜5で計算" : "まだ未記録");
-    html += createMetricCard("メモ日", String(summary.memoDays), "自由記述か補足あり");
-    html += createMetricCard("痛み日", String(summary.painDays), "痛みありを選択");
-    html += createMetricCard("記録日", String(summary.total), "この月の保存件数");
+    html += createMetricButton("メモ日", String(summary.memoDays), "自由記述か補足あり", "yearMemoCard");
+    html += createMetricButton("痛み日", String(summary.painDays), "痛みありを選択", "yearPainCard");
     html += "</div>";
     if (!summary.total) {
       html += '<p class="helper-text">今月の記録はまだありません。今日の1件が入ると、ここにも反映されます。</p>';
@@ -412,11 +428,11 @@
     });
     html += "</div>";
     html += '<div class="year-snapshot">';
-    html += '<div class="info-card">';
+    html += '<div id="yearMemoCard" class="info-card">';
     html += '<div class="list-header"><strong>メモがあった日</strong><span class="helper-text">' + yearSummary.memoRecords.length + "件</span></div>";
     html += renderRecordSnapshotList(yearSummary.memoRecords, "まだありません。");
     html += "</div>";
-    html += '<div class="info-card">';
+    html += '<div id="yearPainCard" class="info-card">';
     html += '<div class="list-header"><strong>痛み記録</strong><span class="helper-text">' + yearSummary.painRecords.length + "件</span></div>";
     html += renderRecordSnapshotList(yearSummary.painRecords, "まだありません。");
     html += "</div>";
@@ -1001,10 +1017,6 @@
     };
   }
 
-  function buildTodaySummary(record) {
-    return record.state + "で、疲れ度は" + record.fatigue + " / 5（" + getFatigueLabel(record.fatigue) + "）です。";
-  }
-
   function buildListSummary(record) {
     var pieces = [record.state + " / 疲れ度 " + record.fatigue + "（" + getFatigueLabel(record.fatigue) + "）"];
     if (record.memo) {
@@ -1025,6 +1037,18 @@
       '<span class="metric-value">' + escapeHtml(value) + "</span>" +
       '<span class="metric-sub">' + escapeHtml(sub) + "</span>" +
       "</div>";
+  }
+
+  function createMetricButton(label, value, sub, targetId) {
+    return '<button class="metric-card metric-button" type="button" data-year-jump="' + escapeAttribute(targetId) + '">' +
+      '<span class="metric-label">' + escapeHtml(label) + "</span>" +
+      '<span class="metric-value">' + escapeHtml(value) + "</span>" +
+      '<span class="metric-sub">' + escapeHtml(sub) + "</span>" +
+      "</button>";
+  }
+
+  function createFatigueBadge(value) {
+    return '<span class="fatigue-badge" data-fatigue="' + escapeAttribute(value) + '">疲れ度 ' + escapeHtml(value) + "</span>";
   }
 
   function renderStackedBar(counts, total) {
