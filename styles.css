@@ -429,13 +429,13 @@ button:focus-visible {
 }
 
 .fatigue-badge[data-fatigue="1"] {
-  background: #e5f9f7;
-  color: #2f8c86;
+  background: #e1f8fb;
+  color: #247f91;
 }
 
 .fatigue-badge[data-fatigue="2"] {
-  background: #eef9ed;
-  color: #5d8a57;
+  background: #edf9f4;
+  color: #4d886f;
 }
 
 .fatigue-badge[data-fatigue="3"] {
