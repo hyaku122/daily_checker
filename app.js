@@ -1,7 +1,7 @@
 "use strict";
 
 (function () {
-  var APP_VERSION = "2026.05.03-16";
+  var APP_VERSION = "2026.05.03-17";
   var CACHE_PREFIX = "mino-kumoyou-static-";
   var BACKUP_PREFIX = "mino-kumoyou-backup-v1:";
   var STORAGE_KEYS = {
