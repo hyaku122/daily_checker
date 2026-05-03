@@ -1,7 +1,7 @@
 "use strict";
 
 (function () {
-  var APP_VERSION = "2026.04.12-1";
+  var APP_VERSION = "2026.05.03-1";
   var CACHE_PREFIX = "mino-kumoyou-static-";
   var BACKUP_PREFIX = "mino-kumoyou-backup-v1:";
   var STORAGE_KEYS = {
@@ -24,6 +24,8 @@
   var appState = {
     records: {},
     preferences: { selectedYear: getCurrentYear() },
+    activeDate: getTodayKey(),
+    activeView: "home",
     quickDraft: createBlankRecord(getTodayKey()),
     quickStep: 1,
     recordSheetMode: "quick",
@@ -66,6 +68,10 @@
     dom.recentPanel = document.getElementById("recentPanel");
     dom.monthPanel = document.getElementById("monthPanel");
     dom.yearPanel = document.getElementById("yearPanel");
+    dom.appMain = document.querySelector(".app-main");
+    dom.yearPage = document.getElementById("yearPage");
+    dom.yearViewButton = document.getElementById("yearViewButton");
+    dom.yearBackButton = document.getElementById("yearBackButton");
     dom.refreshButton = document.getElementById("refreshButton");
     dom.settingsButton = document.getElementById("settingsButton");
     dom.toast = document.getElementById("toast");
@@ -117,9 +123,12 @@
 
   function bindEvents() {
     document.addEventListener("click", handleDocumentClick);
+    document.addEventListener("change", handleDocumentChange);
     window.addEventListener("focus", handleWindowFocus);
     dom.refreshButton.addEventListener("click", handleManualUpdate);
     dom.settingsButton.addEventListener("click", openSettingsSheet);
+    dom.yearViewButton.addEventListener("click", openYearView);
+    dom.yearBackButton.addEventListener("click", closeYearView);
     dom.recordSheetClose.addEventListener("click", closeRecordSheet);
     dom.settingsClose.addEventListener("click", closeSettingsSheet);
     dom.recordSheet.addEventListener("click", handleBackdropClick);
@@ -179,6 +188,12 @@
     }
   }
 
+  function handleDocumentChange(event) {
+    if (event.target && event.target.hasAttribute("data-active-date")) {
+      setActiveDate(event.target.value);
+    }
+  }
+
   function handleBackdropClick(event) {
     if (event.target === dom.recordSheet) {
       closeRecordSheet();
@@ -194,22 +209,64 @@
   }
 
   function renderApp() {
+    renderViewState();
+    renderYearButton();
     renderTodayPanel();
-    renderRecentPanel();
     renderMonthPanel();
+    renderRecentPanel();
     renderYearPanel();
   }
 
+  function renderViewState() {
+    var isYearView = appState.activeView === "year";
+    dom.appMain.classList.toggle("hidden", isYearView);
+    dom.yearPage.classList.toggle("hidden", !isYearView);
+  }
+
+  function renderYearButton() {
+    dom.yearViewButton.textContent = appState.preferences.selectedYear + "年を見返す";
+  }
+
+  function openYearView() {
+    appState.activeView = "year";
+    renderApp();
+    window.scrollTo(0, 0);
+  }
+
+  function closeYearView() {
+    appState.activeView = "home";
+    renderApp();
+    window.scrollTo(0, 0);
+  }
+
+  function setActiveDate(dateKey) {
+    if (!isValidDateKey(dateKey)) {
+      showToast("日付を選びなおしてください。");
+      return;
+    }
+    appState.activeDate = dateKey;
+    renderTodayPanel();
+  }
+
+  function createDatePicker(dateKey) {
+    return '<label class="date-picker-pill">' +
+      '<span>' + escapeHtml(formatDateLabel(dateKey, false)) + "</span>" +
+      '<input type="date" value="' + escapeAttribute(dateKey) + '" data-active-date aria-label="記録する日付を選ぶ" />' +
+      "</label>";
+  }
+
   function renderTodayPanel() {
-    var todayKey = getTodayKey();
-    var todayRecord = getRecord(todayKey);
+    var activeDate = appState.activeDate || getTodayKey();
+    var todayRecord = getRecord(activeDate);
     var totalRecords = getSortedRecords().length;
+    var isToday = activeDate === getTodayKey();
+    var dateCaption = isToday ? "今日" : "記録日";
     var html = "";
 
     if (todayRecord) {
       html += '<div class="panel-head">';
-      html += '<div><p class="section-caption">今日</p><h2 class="panel-title">今日は記録済みです</h2></div>';
-      html += '<span class="info-pill">' + escapeHtml(formatDateLabel(todayKey, false)) + "</span>";
+      html += '<div><p class="section-caption">' + dateCaption + '</p><h2 class="panel-title">記録済みです</h2></div>';
+      html += createDatePicker(activeDate);
       html += "</div>";
       html += '<div class="today-status">';
       html += '<div class="today-summary">';
@@ -226,24 +283,21 @@
         html += '<p class="inline-note">痛みの記録も残っています。</p>';
       }
       html += '<div class="button-row">';
-      html += '<button class="primary-button" type="button" data-open-edit="' + escapeAttribute(todayKey) + '">今日の記録を編集</button>';
+      html += '<button class="primary-button" type="button" data-open-edit="' + escapeAttribute(activeDate) + '">記録を編集</button>';
       html += "</div>";
       html += "</div>";
     } else {
       html += '<div class="panel-head">';
-      html += '<div><p class="section-caption">今日</p><h2 class="panel-title">今日の状態を置いておく</h2></div>';
-      html += '<span class="info-pill">' + escapeHtml(formatDateLabel(todayKey, false)) + "</span>";
+      html += '<div><p class="section-caption">' + dateCaption + '</p><h2 class="panel-title">' + (isToday ? "今日の状態を置く" : "この日の状態を置く") + "</h2></div>";
+      html += createDatePicker(activeDate);
       html += "</div>";
       html += '<div class="empty-state">';
       html += '<div class="empty-cloud" aria-hidden="true">☁</div>';
-      html += '<p class="summary-copy">最短2タップで、その日の空気だけ先に保存できます。</p>';
       if (totalRecords === 0) {
         html += '<p class="inline-note">最初の1件は、澄 / 回復 / 濁 と疲れ度だけで大丈夫です。</p>';
-      } else {
-        html += '<p class="inline-note">あとで体調メモを足したくなったら、その時に追記できます。</p>';
       }
       html += '<div class="button-row">';
-      html += '<button class="primary-button" type="button" data-open-quick="' + escapeAttribute(todayKey) + '">今日の状態を記録する</button>';
+      html += '<button class="primary-button" type="button" data-open-quick="' + escapeAttribute(activeDate) + '">状態を記録する</button>';
       html += "</div>";
       html += "</div>";
     }
@@ -253,7 +307,7 @@
 
   function renderRecentPanel() {
     var records = getSortedRecords().slice(0, 8);
-    var html = '<div class="panel-head"><div><p class="section-caption">最近の記録</p><h2 class="panel-title">軽く見返す</h2></div></div>';
+    var html = '<div class="panel-head"><div><h2 class="panel-title">最近の記録</h2></div></div>';
 
     if (!records.length) {
       html += '<div class="empty-state">';
@@ -292,7 +346,7 @@
     var summary = getMonthSummary(today.getFullYear(), today.getMonth());
     var monthTitle = today.getMonth() + 1 + "月";
     var html = '<div class="panel-head">';
-    html += '<div><p class="section-caption">月サマリー</p><h2 class="panel-title">' + monthTitle + "の輪郭</h2></div>";
+    html += '<div><h2 class="panel-title">' + monthTitle + "の輪郭</h2></div>";
     html += '<span class="info-pill">' + summary.total + "日記録</span>";
     html += "</div>";
     html += '<div class="month-summary-grid">';
@@ -324,7 +378,7 @@
     var yearSummary = getYearSummary(selectedYear);
     var bounds = getYearBounds();
     var html = '<div class="panel-head">';
-    html += '<div><p class="section-caption">年間の傾向</p><h2 class="panel-title">' + selectedYear + "年を見返す</h2></div>";
+    html += '<div><h2 class="panel-title">' + selectedYear + "年を見返す</h2></div>";
     html += "</div>";
     html += '<div class="year-nav">';
     html += '<button class="year-switch" type="button" data-change-year="-1"' + (selectedYear <= bounds.min ? " disabled" : "") + ' aria-label="前年を見る">‹</button>';
@@ -456,10 +510,10 @@
     var targetDate = appState.editingDate;
     var record = getRecord(targetDate) || cloneRecord(appState.quickDraft);
     var isToday = targetDate === getTodayKey();
-    dom.recordSheetEyebrow.textContent = isToday ? "今日の記録" : "記録";
+    dom.recordSheetEyebrow.textContent = "";
 
     if (appState.recordSheetMode === "quick") {
-      dom.recordSheetTitle.textContent = isToday ? "今日の空模様" : "記録する";
+      dom.recordSheetTitle.textContent = isToday ? "今日の状態を置く" : "状態を置く";
       dom.quickFlow.classList.remove("hidden");
       dom.detailForm.classList.add("hidden");
       renderQuickFlow(record);
@@ -514,7 +568,7 @@
   }
 
   function populateDetailForm(record) {
-    dom.detailFormTitle.textContent = appState.detailContext === "memo" ? "体調メモを追加する" : "記録を編集する";
+    dom.detailFormTitle.textContent = "";
     dom.detailDateText.textContent = formatDateLabel(record.date, true);
     dom.detailStateInput.value = record.state || "";
     dom.detailFatigueInput.value = record.fatigue || "";
@@ -582,7 +636,7 @@
     appState.quickStep = 3;
     renderApp();
     renderRecordSheet();
-    showToast("今日の基本記録を保存しました。");
+    showToast("基本記録を保存しました。");
     sessionStorage.removeItem("mino-kumoyou.autoPromptDismissed");
   }
 
@@ -712,6 +766,7 @@
     }
     appState.preferences.selectedYear = nextYear;
     persistPreferences();
+    renderYearButton();
     renderYearPanel();
   }
 
@@ -1080,7 +1135,15 @@
   }
 
   function isValidDateKey(value) {
-    return /^\d{4}-\d{2}-\d{2}$/.test(String(value || ""));
+    var text = String(value || "");
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(text)) {
+      return false;
+    }
+    var parts = splitDateKey(text);
+    var date = new Date(parts.year, parts.month - 1, parts.day);
+    return date.getFullYear() === parts.year &&
+      date.getMonth() === parts.month - 1 &&
+      date.getDate() === parts.day;
   }
 
   function isIsoDate(value) {

@@ -1,4 +1,4 @@
-const APP_VERSION = "2026.04.12-1";
+const APP_VERSION = "2026.05.03-1";
 const CACHE_PREFIX = "mino-kumoyou-static-";
 const CACHE_NAME = `${CACHE_PREFIX}${APP_VERSION}`;
 const PRECACHE_PATHS = [

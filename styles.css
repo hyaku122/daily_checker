@@ -113,7 +113,7 @@ button:focus-visible {
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
-  margin-bottom: 18px;
+  margin-bottom: 12px;
 }
 
 .brand-block {
@@ -129,36 +129,45 @@ button:focus-visible {
   color: var(--text-soft);
 }
 
+.sheet-eyebrow:empty {
+  display: none;
+}
+
 .app-title {
   margin: 0;
-  font-family: "Hiragino Mincho ProN", "Yu Mincho", serif;
-  font-size: 32px;
-  line-height: 1.1;
-  font-weight: 700;
+  font-family: "Yu Gothic", "Hiragino Maru Gothic ProN", "Hiragino Sans", "Meiryo", sans-serif;
+  font-size: 31px;
+  line-height: 1.18;
+  font-weight: 650;
+  letter-spacing: 0;
 }
 
 .header-actions {
   display: flex;
-  gap: 10px;
-  padding-top: 4px;
+  gap: 8px;
+  padding-top: 2px;
 }
 
 .icon-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
-  border-radius: 16px;
-  color: var(--accent-deep);
-  background: rgba(255, 255, 255, 0.88);
-  box-shadow: var(--shadow-card);
-  border: 1px solid rgba(122, 173, 208, 0.18);
+  width: 46px;
+  height: 46px;
+  border-radius: 17px;
+  color: #4d8bb4;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(246, 251, 255, 0.9));
+  box-shadow: 0 8px 18px rgba(70, 118, 148, 0.12);
+  border: 1px solid rgba(111, 159, 187, 0.18);
+}
+
+.header-actions .icon-button:nth-child(2) {
+  color: #7a8f69;
 }
 
 .icon-button svg {
-  width: 22px;
-  height: 22px;
+  width: 23px;
+  height: 23px;
 }
 
 .icon-button-subtle {
@@ -171,6 +180,30 @@ button:focus-visible {
 .app-main {
   display: grid;
   gap: 16px;
+}
+
+.year-view-button {
+  display: inline-flex;
+  align-items: center;
+  min-height: 38px;
+  margin-top: 12px;
+  padding: 9px 13px;
+  border-radius: 999px;
+  color: #426276;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(122, 173, 208, 0.18);
+  box-shadow: 0 8px 16px rgba(70, 118, 148, 0.08);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.year-page {
+  display: grid;
+  gap: 14px;
+}
+
+.year-back-button {
+  justify-self: start;
 }
 
 .panel {
@@ -343,6 +376,32 @@ button:focus-visible {
 .info-pill {
   background: rgba(236, 245, 255, 0.94);
   color: var(--text-soft);
+}
+
+.date-picker-pill {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  flex: 0 0 auto;
+  overflow: hidden;
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-soft);
+  background: rgba(236, 245, 255, 0.94);
+  border: 1px solid rgba(122, 173, 208, 0.16);
+}
+
+.date-picker-pill input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  opacity: 0.01;
 }
 
 .today-status {
@@ -726,6 +785,10 @@ button:focus-visible {
   margin: 0;
   font-size: 13px;
   color: var(--text-soft);
+}
+
+.detail-form-title {
+  display: none;
 }
 
 .detail-section,
