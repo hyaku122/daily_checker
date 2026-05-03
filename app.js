@@ -1,7 +1,7 @@
 "use strict";
 
 (function () {
-  var APP_VERSION = "2026.05.03-2";
+  var APP_VERSION = "2026.05.03-14";
   var CACHE_PREFIX = "mino-kumoyou-static-";
   var BACKUP_PREFIX = "mino-kumoyou-backup-v1:";
   var STORAGE_KEYS = {
@@ -286,7 +286,7 @@
       html += '<div class="today-status">';
       html += '<div class="today-summary">';
       html += createStateBadge(todayRecord.state);
-      html += '<span class="info-pill">疲れ度 ' + todayRecord.fatigue + " / 5 " + escapeHtml(getFatigueLabel(todayRecord.fatigue)) + "</span>";
+      html += createFatigueBadge(todayRecord.fatigue);
       if (hasOptionalMemo(todayRecord)) {
         html += '<span class="info-pill">体調メモあり</span>';
       }
@@ -370,17 +370,17 @@
     html += renderStackedBar(summary.counts, summary.total);
     html += '<div class="summary-grid state-count-grid">';
     STATE_OPTIONS.forEach(function (option) {
-      html += '<div class="snapshot-card">';
-      html += '<span class="metric-label">' + escapeHtml(option.value) + "</span>";
+      html += '<div class="snapshot-card state-count-card" data-state="' + escapeAttribute(option.value) + '">';
+      html += '<span class="metric-label state-count-label">' + escapeHtml(option.value) + "</span>";
       html += '<span class="metric-value">' + summary.counts[option.value] + "</span>";
       html += '<span class="metric-sub">' + getRatioText(summary.counts[option.value], summary.total) + "</span>";
       html += "</div>";
     });
     html += "</div>";
     html += '<div class="month-stats">';
-    html += createMetricCard("平均疲れ度", summary.total ? formatAverage(summary.averageFatigue) : "—", summary.total ? "1〜5で計算" : "まだ未記録");
-    html += createMetricButton("メモ日", String(summary.memoDays), "自由記述か補足あり", "yearMemoCard");
-    html += createMetricButton("痛み日", String(summary.painDays), "痛みありを選択", "yearPainCard");
+    html += createMetricCard("平均疲れ度", summary.total ? formatAverage(summary.averageFatigue) : "—", "");
+    html += createMetricButton("メモ日", String(summary.memoDays), "", "yearMemoCard");
+    html += createMetricButton("痛み日", String(summary.painDays), "", "yearPainCard");
     html += "</div>";
     if (!summary.total) {
       html += '<p class="helper-text">今月の記録はまだありません。今日の1件が入ると、ここにも反映されます。</p>';

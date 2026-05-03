@@ -312,6 +312,7 @@ button:focus-visible {
 
 .state-count-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
 }
 
 .metric-grid {
@@ -321,7 +322,7 @@ button:focus-visible {
 .metric-card,
 .info-card,
 .snapshot-card {
-  padding: 14px;
+  padding: 13px;
   border-radius: var(--radius-md);
   background: var(--panel-strong);
   border: 1px solid rgba(118, 170, 199, 0.18);
@@ -337,12 +338,13 @@ button:focus-visible {
   display: block;
   font-size: 12px;
   color: var(--text-soft);
+  word-break: keep-all;
 }
 
 .metric-value {
   display: block;
   margin-top: 6px;
-  font-size: 22px;
+  font-size: 21px;
   font-weight: 700;
 }
 
@@ -351,6 +353,43 @@ button:focus-visible {
   margin-top: 4px;
   font-size: 12px;
   color: var(--text-faint);
+}
+
+.metric-sub:empty {
+  display: none;
+}
+
+.state-count-card {
+  text-align: center;
+}
+
+.state-count-card[data-state="澄"] {
+  background: rgba(121, 197, 255, 0.18);
+}
+
+.state-count-card[data-state="回復"] {
+  background: rgba(135, 213, 182, 0.2);
+}
+
+.state-count-card[data-state="濁"] {
+  background: rgba(161, 173, 199, 0.22);
+}
+
+.state-count-card .metric-label {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.state-count-card[data-state="澄"] .metric-label {
+  color: #257bc1;
+}
+
+.state-count-card[data-state="回復"] .metric-label {
+  color: #2d8762;
+}
+
+.state-count-card[data-state="濁"] .metric-label {
+  color: #56627b;
 }
 
 .state-badge,
@@ -390,13 +429,13 @@ button:focus-visible {
 }
 
 .fatigue-badge[data-fatigue="1"] {
-  background: #fff0de;
-  color: #9a6530;
+  background: #ffeaf1;
+  color: #a65c78;
 }
 
 .fatigue-badge[data-fatigue="2"] {
-  background: #fff4e6;
-  color: #936f3b;
+  background: #fff1e7;
+  color: #9a6c63;
 }
 
 .fatigue-badge[data-fatigue="3"] {
@@ -590,8 +629,8 @@ button:focus-visible {
 
 .month-stats {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
 }
 
 .year-snapshot {
@@ -931,9 +970,13 @@ output {
 @media (max-width: 380px) {
   .summary-grid,
   .metric-grid,
-  .month-stats,
   .choice-row-5 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .month-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
   }
 
   .state-count-grid {
